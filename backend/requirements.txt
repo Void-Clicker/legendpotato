@@ -2,4 +2,5 @@ fastapi
 uvicorn
 sqlalchemy
 python-multipart
+supabase
 passlib[bcrypt]
