@@ -1,7 +1,8 @@
+import os
 from fastapi import FastAPI
 
 app = FastAPI()
 
 @app.get("/")
 def home():
-    return {"message": "Backend is working"}
+    return {"message": "Backend running on Render"}
