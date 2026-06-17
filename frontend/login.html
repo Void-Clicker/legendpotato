@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px 20px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+        h2 {
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: #fff;
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 16px;
+            min-height: 24px;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        
+        <input id="username" placeholder="Username" />
+        <input id="password" type="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+
+        <p id="result"></p>
+
+        <a href="register.html">Don't have an account? Register</a>
+    </div>
+
+    <script>
+    const API = "https://legendpotato.onrender.com";
+
+    async function login() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const resultEl = document.getElementById("result");
+
+        if (!username || !password) {
+            resultEl.style.color = "yellow";
+            resultEl.textContent = "Please fill all fields";
+            return;
+        }
+
+        try {
+            const res = await fetch(API + "/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+            
+            if (data.message === "Login successful!") {
+                resultEl.style.color = "#90EE90";
+                resultEl.textContent = "✅ Login successful! Welcome, " + data.username;
+                
+                localStorage.setItem("currentUser", JSON.stringify(data));
+                
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1500);
+            } else {
+                resultEl.style.color = "#ff6666";
+                resultEl.textContent = "❌ " + (data.detail || data.error || "Login failed");
+            }
+        } catch (err) {
+            resultEl.style.color = "#ff6666";
+            resultEl.textContent = "❌ Connection error. Try again.";
+        }
+    }
+    </script>
+</body>
+</html>
