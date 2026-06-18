@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        .header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .content {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .nav-item.active {
+            color: #667eea;
+            background: #f0f0ff;
+        }
+        .nav-item span {
+            font-size: 24px;
+            display: block;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        button, .menu-btn {
+            padding: 12px;
+            margin: 10px 0;
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>My Social App</h2>
+    </div>
+
+    <!-- Home Feed -->
+    <div id="home" class="page active content">
+        <h3>Welcome, <span id="username-display">User</span> 👋</h3>
+        <p>This is your feed. More features coming soon!</p>
+        <button onclick="alert('Post something! ✨')">Create Post</button>
+    </div>
+
+    <!-- Chat Page -->
+    <div id="chat" class="page content">
+        <h3>💬 Messages</h3>
+        <p>Real-time chat coming soon...</p>
+        <button onclick="alert('Chat feature in progress!')">Start New Chat</button>
+    </div>
+
+    <!-- Shorts / Watch -->
+    <div id="shorts" class="page content">
+        <h3>📱 Shorts</h3>
+        <p>Vertical video feed coming next!</p>
+        <button onclick="alert('Shorts feed coming soon 🎥')">Upload Short</button>
+    </div>
+
+    <!-- Profile -->
+    <div id="profile" class="page content">
+        <h3>👤 Profile</h3>
+        <p id="profile-info"></p>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab(0)">
+            <span>🏠</span>
+            <small>Home</small>
+        </div>
+        <div class="nav-item" onclick="switchTab(1)">
+            <span>💬</span>
+            <small>Chat</small>
+        </div>
+        <div class="nav-item" onclick="switchTab(2)">
+            <span>📱</span>
+            <small>Shorts</small>
+        </div>
+        <div class="nav-item" onclick="switchTab(3)">
+            <span>👤</span>
+            <small>Me</small>
+        </div>
+    </div>
+
+    <script>
+    const API = "https://legendpotato.onrender.com";
+
+    // Check login
+    function checkLogin() {
+        const user = localStorage.getItem("currentUser");
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+        const userData = JSON.parse(user);
+        document.getElementById("username-display").textContent = userData.username;
+        document.getElementById("profile-info").innerHTML = `
+            <strong>Username:</strong> ${userData.username}<br>
+            Logged in successfully!
+        `;
+    }
+
+    // Switch between tabs
+    function switchTab(tabIndex) {
+        // Remove active from all
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        
+        // Activate selected
+        const pages = document.querySelectorAll('.page');
+        pages[tabIndex].classList.add('active');
+        
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems[tabIndex].classList.add('active');
+    }
+
+    function logout() {
+        if (confirm("Logout?")) {
+            localStorage.removeItem("currentUser");
+            window.location.href = "login.html";
+        }
+    }
+
+    // Initialize
+    window.onload = checkLogin;
+    </script>
+</body>
+</html>
