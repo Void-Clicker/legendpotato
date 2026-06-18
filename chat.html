@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial; margin: 0; padding: 0; background: #f0f2f5; }
+        .header { background: #667eea; color: white; padding: 15px; text-align: center; }
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        #messages {
+            height: 70vh;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        .my-msg { background: #667eea; color: white; margin-left: auto; }
+        .other-msg { background: #e5e5e5; }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>💬 Global Chat</h2>
+    </div>
+
+    <div class="chat-container">
+        <div id="messages"></div>
+        <input id="message-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+
+    <script>
+    const API = "https://legendpotato.onrender.com";
+    let username = "";
+    let socket = null;
+
+    function loadUser() {
+        const user = localStorage.getItem("currentUser");
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        username = JSON.parse(user).username;
+    }
+
+    function connectWebSocket() {
+        socket = new WebSocket(`wss://legendpotato.onrender.com/ws/${username}`);
+        
+        socket.onmessage = function(event) {
+            const messages = document.getElementById("messages");
+            const msg = document.createElement("div");
+            msg.className = "message other-msg";
+            msg.textContent = event.data;
+            messages.appendChild(msg);
+            messages.scrollTop = messages.scrollHeight;
+        };
+
+        socket.onclose = () => console.log("Chat disconnected");
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("message-input");
+        if (input.value.trim() && socket) {
+            socket.send(input.value.trim());
+            input.value = "";
+        }
+    }
+
+    window.onload = () => {
+        loadUser();
+        connectWebSocket();
+    };
+    </script>
+</body>
+</html>
