@@ -16,12 +16,9 @@
         .chat-header {
             background: #1a1a1a;
             padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            text-align: center;
             border-bottom: 1px solid #333;
         }
-        .chat-header h2 { margin: 0; }
         .messages {
             flex: 1;
             overflow-y: auto;
@@ -32,39 +29,19 @@
             background: #0a0a0a;
         }
         .message {
-            display: flex;
-            gap: 10px;
             max-width: 80%;
-        }
-        .message.me {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .pfp {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #667eea;
-        }
-        .bubble {
             padding: 12px 16px;
             border-radius: 18px;
-            max-width: 70%;
         }
-        .me .bubble {
+        .me {
+            align-self: flex-end;
             background: #667eea;
-            color: white;
             border-bottom-right-radius: 4px;
         }
-        .other .bubble {
+        .other {
+            align-self: flex-start;
             background: #2a2a2a;
             border-bottom-left-radius: 4px;
-        }
-        .username {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-bottom: 4px;
         }
         .input-area {
             background: #1a1a1a;
@@ -94,14 +71,14 @@
 </head>
 <body>
     <div class="chat-header">
-        <h2>🌐 Global Chat</h2>
+        <h2>🌍 Global Chat</h2>
     </div>
 
     <div class="messages" id="messages"></div>
 
     <div class="input-area">
         <input id="message-input" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendMessage()">
-        <button onclick="sendMessage()">Send Message</button>
+        <button onclick="sendMessage()">Send</button>
         <button onclick="window.location.href='home.html'">← Back to Home</button>
     </div>
 
@@ -110,45 +87,25 @@
     let username = "";
     let socket = null;
 
-    async function loadUser() {
+    function loadUser() {
         const user = localStorage.getItem("currentUser");
         if (!user) return window.location.href = "index.html";
         username = JSON.parse(user).username;
     }
 
-    async function getPFP(user) {
-        try {
-            const res = await fetch(`${API}/profile/${user}`);
-            const data = await res.json();
-            return data.profile_pic || "https://via.placeholder.com/40";
-        } catch {
-            return "https://via.placeholder.com/40";
-        }
-    }
-
     function connectWebSocket() {
         socket = new WebSocket(`wss://legendpotato.onrender.com/ws/${username}`);
         
-        socket.onmessage = async function(event) {
+        socket.onmessage = function(event) {
             const messagesDiv = document.getElementById("messages");
             const text = event.data;
-            
-            // Parse username from message
             const match = text.match(/\[(.+?)\]:/);
             const sender = match ? match[1] : "Unknown";
             const msgText = text.replace(/\[.+?\]: /, "");
 
-            const pfpUrl = await getPFP(sender);
-
             const msgDiv = document.createElement("div");
             msgDiv.className = `message ${sender === username ? 'me' : 'other'}`;
-            msgDiv.innerHTML = `
-                <img class="pfp" src="${pfpUrl}" alt="">
-                <div>
-                    <div class="username">${sender}</div>
-                    <div class="bubble">${msgText}</div>
-                </div>
-            `;
+            msgDiv.textContent = msgText;
             messagesDiv.appendChild(msgDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         };
@@ -163,9 +120,8 @@
     }
 
     window.onload = () => {
-        loadUser().then(() => {
-            connectWebSocket();
-        });
+        loadUser();
+        connectWebSocket();
     };
     </script>
 </body>
