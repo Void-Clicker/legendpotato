@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; background: #f0f2f5; }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #667eea;
+        }
+        input[type="file"] { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h2>👤 Your Profile</h2>
+    <img id="pfp" class="profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
+    <h3 id="username-display"></h3>
+
+    <input type="file" id="pfp-upload" accept="image/*">
+    <button onclick="uploadPFP()">Upload New Profile Picture</button>
+
+    <br><br>
+    <button onclick="window.location.href='home.html'">Back to Home</button>
+
+    <script>
+    const API = "https://legendpotato.onrender.com";
+    let currentUser = "";
+
+    async function loadProfile() {
+        const user = localStorage.getItem("currentUser");
+        if (!user) return window.location.href = "index.html";
+        
+        currentUser = JSON.parse(user).username;
+        document.getElementById("username-display").textContent = currentUser;
+
+        // Load current PFP
+        const res = await fetch(`${API}/profile/${currentUser}`);
+        const data = await res.json();
+        if (data.profile_pic) {
+            document.getElementById("pfp").src = data.profile_pic;
+        }
+    }
+
+    async function uploadPFP() {
+        const fileInput = document.getElementById("pfp-upload");
+        if (!fileInput.files[0]) return alert("Select an image!");
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const res = await fetch(`${API}/upload-pfp/${currentUser}`, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        alert(data.message);
+        if (data.url) document.getElementById("pfp").src = data.url;
+    }
+
+    window.onload = loadProfile;
+    </script>
+</body>
+</html>
