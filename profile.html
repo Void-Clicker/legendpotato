@@ -4,80 +4,55 @@
     <title>Profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            min-height: 100vh;
+            background: #f0f2f5;
             padding: 20px;
+            min-height: 100vh;
         }
-        .profile-container {
+        .container {
             max-width: 500px;
             margin: 0 auto;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .profile-pic {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 6px solid white;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-        h2 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        .bio {
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            opacity: 0.9;
-            margin: 15px 0 30px;
-        }
-        input[type="file"] {
-            margin: 20px 0;
-            color: white;
         }
         button {
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: white;
-            color: #667eea;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #f0f0f0;
-        }
-        .back-btn {
-            background: transparent;
+            padding: 14px;
+            background: #667eea;
             color: white;
-            border: 2px solid white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="profile-container">
-        <h2>Your Profile</h2>
+    <div class="container">
+        <h2>👤 Edit Profile</h2>
         
-        <img id="pfp" class="profile-pic" src="https://via.placeholder.com/160" alt="Profile Picture">
-        <h2 id="username-display"></h2>
-        <p class="bio">Welcome to your profile! ✨<br>Upload a cool profile picture below.</p>
+        <label>Display Name</label>
+        <input id="display_name" placeholder="Your display name">
 
-        <input type="file" id="pfp-upload" accept="image/*">
-        <button onclick="uploadPFP()">Upload New Profile Picture</button>
-        
-        <button class="back-btn" onclick="window.location.href='home.html'">← Back to Home</button>
+        <label>Handle (@username)</label>
+        <input id="handle" placeholder="@yourhandle">
+
+        <label>Bio</label>
+        <textarea id="bio" rows="4" placeholder="Write something about yourself..."></textarea>
+
+        <button onclick="saveProfile()">Save Profile</button>
+        <button onclick="window.location.href='home.html'" style="background:#666;">Back to Home</button>
     </div>
 
     <script>
@@ -89,36 +64,31 @@
         if (!user) return window.location.href = "index.html";
         
         currentUser = JSON.parse(user).username;
-        document.getElementById("username-display").textContent = currentUser;
 
         try {
             const res = await fetch(`${API}/profile/${currentUser}`);
             const data = await res.json();
-            if (data.profile_pic) {
-                document.getElementById("pfp").src = data.profile_pic;
-            }
-        } catch (e) {
-            console.log("Could not load profile pic");
-        }
+            
+            document.getElementById("display_name").value = data.display_name || "";
+            document.getElementById("handle").value = data.handle || "";
+            document.getElementById("bio").value = data.bio || "";
+        } catch(e) {}
     }
 
-    async function uploadPFP() {
-        const fileInput = document.getElementById("pfp-upload");
-        if (!fileInput.files[0]) return alert("Please select an image first!");
-
-        const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
+    async function saveProfile() {
+        const display_name = document.getElementById("display_name").value;
+        const handle = document.getElementById("handle").value;
+        const bio = document.getElementById("bio").value;
 
         try {
-            const res = await fetch(`${API}/upload-pfp/${currentUser}`, {
+            await fetch(`${API}/update-profile/${currentUser}`, {
                 method: "POST",
-                body: formData
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ display_name, handle, bio })
             });
-            const data = await res.json();
-            alert(data.message || "Profile picture updated!");
-            if (data.url) document.getElementById("pfp").src = data.url;
-        } catch (err) {
-            alert("Upload failed. Try again.");
+            alert("✅ Profile updated successfully!");
+        } catch(err) {
+            alert("Failed to save profile");
         }
     }
 
