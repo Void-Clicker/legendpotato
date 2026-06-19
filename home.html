@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Void SM</title>
+    <title>Home - Social App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,7 +14,7 @@
         .header {
             background: #667eea;
             color: white;
-            padding: 15px;
+            padding: 18px;
             text-align: center;
             position: sticky;
             top: 0;
@@ -24,6 +24,34 @@
             padding: 20px;
             max-width: 600px;
             margin: 0 auto;
+        }
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .welcome h2 {
+            color: #333;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background: white;
+            border: none;
+            padding: 25px 15px;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
         .bottom-nav {
             position: fixed;
@@ -36,12 +64,13 @@
             justify-content: space-around;
             padding: 12px 0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
         .nav-item {
             text-align: center;
             color: #666;
             cursor: pointer;
-            padding: 8px;
+            padding: 8px 12px;
             border-radius: 12px;
         }
         .nav-item.active {
@@ -56,17 +85,26 @@
 </head>
 <body>
     <div class="header">
-        <h2>Void SM</h2>
+        <h2>My Social App</h2>
     </div>
 
     <div class="content">
-        <h3>Welcome, <span id="username-display">User</span> 👋</h3>
-        <p>Choose an option below 👇</p>
+        <div class="welcome">
+            <h2>Welcome back, <span id="username-display">User</span> 👋</h2>
+            <p>What's happening today?</p>
+        </div>
+
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="window.location.href='chat.html'">💬 Messages</button>
+            <button class="menu-btn" onclick="alert('Shorts feed coming soon! 📱')">📱 Shorts</button>
+            <button class="menu-btn" onclick="window.location.href='profile.html'">👤 Profile</button>
+            <button class="menu-btn" onclick="alert('Friends feature coming soon 👥')">👥 Friends</button>
+        </div>
     </div>
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="window.location.href='index.html'">
+        <div class="nav-item active" onclick="window.location.href='home.html'">
             <span>🏠</span>
             <small>Home</small>
         </div>
@@ -74,11 +112,11 @@
             <span>💬</span>
             <small>Chat</small>
         </div>
-        <div class="nav-item" onclick="alert('Shorts coming soon! 📱')">
+        <div class="nav-item" onclick="alert('Shorts coming soon 📱')">
             <span>📱</span>
             <small>Shorts</small>
         </div>
-        <div class="nav-item" onclick="logout()">
+        <div class="nav-item" onclick="window.location.href='profile.html'">
             <span>👤</span>
             <small>Me</small>
         </div>
@@ -88,20 +126,14 @@
     function checkLogin() {
         const user = localStorage.getItem("currentUser");
         if (!user) {
-            window.location.href = "index.html";
+            window.location.href = "index.html";   // your login page
             return;
         }
         const userData = JSON.parse(user);
         document.getElementById("username-display").textContent = userData.username;
     }
 
-    function logout() {
-        if (confirm("Logout?")) {
-            localStorage.removeItem("currentUser");
-            window.location.href = "index.html";
-        }
-    }
-
+    // Initialize
     window.onload = checkLogin;
     </script>
 </body>
