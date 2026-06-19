@@ -4,27 +4,81 @@
     <title>Profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial; text-align: center; padding: 20px; background: #f0f2f5; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .profile-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
         .profile-pic {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #667eea;
+            border: 6px solid white;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
-        input[type="file"] { margin: 20px 0; }
+        h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .bio {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 15px 0 30px;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+            color: white;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+        .back-btn {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
     </style>
 </head>
 <body>
-    <h2>👤 Your Profile</h2>
-    <img id="pfp" class="profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
-    <h3 id="username-display"></h3>
+    <div class="profile-container">
+        <h2>Your Profile</h2>
+        
+        <img id="pfp" class="profile-pic" src="https://via.placeholder.com/160" alt="Profile Picture">
+        <h2 id="username-display"></h2>
+        <p class="bio">Welcome to your profile! ✨<br>Upload a cool profile picture below.</p>
 
-    <input type="file" id="pfp-upload" accept="image/*">
-    <button onclick="uploadPFP()">Upload New Profile Picture</button>
-
-    <br><br>
-    <button onclick="window.location.href='home.html'">Back to Home</button>
+        <input type="file" id="pfp-upload" accept="image/*">
+        <button onclick="uploadPFP()">Upload New Profile Picture</button>
+        
+        <button class="back-btn" onclick="window.location.href='home.html'">← Back to Home</button>
+    </div>
 
     <script>
     const API = "https://legendpotato.onrender.com";
@@ -37,29 +91,35 @@
         currentUser = JSON.parse(user).username;
         document.getElementById("username-display").textContent = currentUser;
 
-        // Load current PFP
-        const res = await fetch(`${API}/profile/${currentUser}`);
-        const data = await res.json();
-        if (data.profile_pic) {
-            document.getElementById("pfp").src = data.profile_pic;
+        try {
+            const res = await fetch(`${API}/profile/${currentUser}`);
+            const data = await res.json();
+            if (data.profile_pic) {
+                document.getElementById("pfp").src = data.profile_pic;
+            }
+        } catch (e) {
+            console.log("Could not load profile pic");
         }
     }
 
     async function uploadPFP() {
         const fileInput = document.getElementById("pfp-upload");
-        if (!fileInput.files[0]) return alert("Select an image!");
+        if (!fileInput.files[0]) return alert("Please select an image first!");
 
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
 
-        const res = await fetch(`${API}/upload-pfp/${currentUser}`, {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await res.json();
-        alert(data.message);
-        if (data.url) document.getElementById("pfp").src = data.url;
+        try {
+            const res = await fetch(`${API}/upload-pfp/${currentUser}`, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            alert(data.message || "Profile picture updated!");
+            if (data.url) document.getElementById("pfp").src = data.url;
+        } catch (err) {
+            alert("Upload failed. Try again.");
+        }
     }
 
     window.onload = loadProfile;
